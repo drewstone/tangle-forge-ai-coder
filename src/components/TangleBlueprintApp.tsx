@@ -6,6 +6,7 @@ import EditorToolbar from "@/components/editor/EditorToolbar";
 import ChatInterface from "@/components/chat/ChatInterface";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { toast } from "sonner";
+import { useActiveProject } from "@/hooks/use-active-project";
 
 const TangleBlueprintApp = () => {
   const [defaultCode] = useState(`fn main() {
@@ -20,11 +21,9 @@ const TangleBlueprintApp = () => {
     
     // Deploy your infrastructure
     blueprint.deploy();
-  }
-  
-  fn create_blueprint() -> Blueprint {
-    Blueprint::new("my-infrastructure")
   }`);
+
+  const activeProject = useActiveProject((state) => state.activeProject);
 
   const handleSendMessage = (message: string) => {
     console.log("Sending message:", message);
@@ -44,20 +43,26 @@ const TangleBlueprintApp = () => {
 
   return (
     <MainLayout>
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
-        <ResizablePanel defaultSize={35} minSize={20}>
-          <ChatInterface onSendMessage={handleSendMessage} />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={65} minSize={30}>
-          <div className="flex flex-col h-full">
-            <EditorToolbar onSave={handleSaveCode} onRun={handleRunCode} />
-            <div className="flex-1 overflow-hidden">
-              <CodeEditor defaultValue={defaultCode} />
+      {activeProject ? (
+        <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
+          <ResizablePanel defaultSize={35} minSize={20}>
+            <ChatInterface onSendMessage={handleSendMessage} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={65} minSize={30}>
+            <div className="flex flex-col h-full">
+              <EditorToolbar onSave={handleSaveCode} onRun={handleRunCode} />
+              <div className="flex-1 overflow-hidden">
+                <CodeEditor defaultValue={defaultCode} />
+              </div>
             </div>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] text-muted-foreground">
+          Select a project to get started
+        </div>
+      )}
     </MainLayout>
   );
 };
