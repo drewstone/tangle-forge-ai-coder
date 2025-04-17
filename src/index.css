@@ -148,14 +148,14 @@
   }
 
   .project-file {
-    @apply flex items-center gap-2 p-2 rounded-md hover:bg-secondary cursor-pointer;
+    @apply flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer hover:bg-accent/50 transition-colors;
   }
 
   .project-folder {
-    @apply flex items-center gap-2 p-2 font-medium;
+    @apply flex items-center gap-2 px-2 py-1.5 text-sm font-medium;
   }
 
   .nav-item {
-    @apply flex items-center gap-2 p-2 rounded-md hover:bg-secondary cursor-pointer;
+    @apply flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer hover:bg-accent/50 transition-colors;
   }
 }
