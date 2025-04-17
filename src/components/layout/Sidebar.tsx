@@ -1,5 +1,5 @@
 
-import { Folder, File } from "lucide-react";
+import { Folder, File, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CollapsibleSection from "../sidebar/CollapsibleSection";
 
@@ -15,8 +15,25 @@ const Sidebar = () => {
   return (
     <aside className="w-60 border-r border-border bg-card flex flex-col h-full">
       <div className="flex-1 overflow-auto">
+        <CollapsibleSection title="Chats" defaultOpen={true}>
+          <div className="space-y-1 px-2">
+            <div className="nav-item">
+              <MessageSquare size={16} className="text-muted-foreground" />
+              <span>Setup Database</span>
+            </div>
+            <div className="nav-item">
+              <MessageSquare size={16} className="text-muted-foreground" />
+              <span>API Integration</span>
+            </div>
+            <div className="nav-item">
+              <MessageSquare size={16} className="text-muted-foreground" />
+              <span>Auth Config</span>
+            </div>
+          </div>
+        </CollapsibleSection>
+
         <CollapsibleSection title="Projects" defaultOpen={true}>
-          <div className="space-y-1">
+          <div className="space-y-1 px-2">
             <div className={cn("project-file", "bg-secondary")}>
               <Folder size={16} className="text-primary" />
               <span>tangle-example</span>
@@ -29,7 +46,7 @@ const Sidebar = () => {
         </CollapsibleSection>
 
         <CollapsibleSection title="Files" defaultOpen={true}>
-          <div className="space-y-1">
+          <div className="space-y-1 px-2">
             <div className="project-folder">
               <Folder size={16} />
               <span>src</span>
@@ -51,20 +68,6 @@ const Sidebar = () => {
             <div className="project-file !bg-transparent hover:!bg-accent/50">
               <File size={16} />
               <span>README.md</span>
-            </div>
-          </div>
-        </CollapsibleSection>
-
-        <CollapsibleSection title="Chats">
-          <div className="space-y-1">
-            <div className="project-file !bg-transparent hover:!bg-accent/50">
-              <span>Setup Database</span>
-            </div>
-            <div className="project-file !bg-transparent hover:!bg-accent/50">
-              <span>API Integration</span>
-            </div>
-            <div className="project-file !bg-transparent hover:!bg-accent/50">
-              <span>Auth Config</span>
             </div>
           </div>
         </CollapsibleSection>

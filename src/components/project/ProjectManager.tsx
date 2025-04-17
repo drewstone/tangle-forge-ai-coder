@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Folder, FolderPlus, RefreshCw, File, Package } from "lucide-react";
+import { FolderPlus, RefreshCw, Package, Folder, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -81,11 +81,16 @@ const ProjectManager = () => {
   const renderFiles = (files: ProjectFile[], depth = 0) => {
     return files.map(file => (
       <div key={file.id}>
-        <div className="project-file" style={{ paddingLeft: `${depth * 12 + 8}px` }}>
+        <div 
+          className={`flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer hover:bg-accent/50 transition-colors ${
+            file.type === 'file' ? 'hover:bg-secondary/80' : ''
+          }`} 
+          style={{ paddingLeft: `${depth * 12 + 8}px` }}
+        >
           {file.type === "folder" ? (
             <Folder size={16} className="text-primary" />
           ) : (
-            <File size={16} />
+            <File size={16} className="text-muted-foreground" />
           )}
           <span>{file.name}</span>
         </div>
@@ -95,52 +100,54 @@ const ProjectManager = () => {
   };
 
   return (
-    <div className="p-4 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Projects</h2>
-        <div className="flex gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
-                <FolderPlus size={16} className="mr-2" />
-                New
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Project</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">
-                    Project Name
-                  </label>
-                  <Input
-                    id="name"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="my-tangle-project"
-                  />
-                </div>
-                <Button onClick={handleCreateProject} className="w-full">
-                  Create Project
+    <div className="h-full flex flex-col">
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Projects</h2>
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <FolderPlus size={16} className="mr-2" />
+                  New
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Button size="sm" variant="outline">
-            <RefreshCw size={16} />
-          </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Project</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="text-sm font-medium">
+                      Project Name
+                    </label>
+                    <Input
+                      id="name"
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                      placeholder="my-tangle-project"
+                    />
+                  </div>
+                  <Button onClick={handleCreateProject} className="w-full">
+                    Create Project
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button size="sm" variant="outline">
+              <RefreshCw size={16} />
+            </Button>
+          </div>
         </div>
-      </div>
-      
-      <div className="border rounded-md mb-4">
-        <div className="p-3 border-b bg-secondary/30 flex items-center gap-2">
-          <Package size={16} />
-          <span className="font-medium">tangle-example</span>
-        </div>
-        <div className="p-2 max-h-[300px] overflow-y-auto">
-          {renderFiles(files)}
+        
+        <div className="border rounded-md mb-4">
+          <div className="p-3 border-b bg-secondary/30 flex items-center gap-2">
+            <Package size={16} />
+            <span className="font-medium">tangle-example</span>
+          </div>
+          <div className="p-2 max-h-[300px] overflow-y-auto">
+            {renderFiles(files)}
+          </div>
         </div>
       </div>
     </div>
