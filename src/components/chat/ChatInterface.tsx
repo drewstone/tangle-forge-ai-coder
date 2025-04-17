@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ interface Message {
 
 interface ChatInterfaceProps {
   onSendMessage?: (message: string) => void;
+  welcomeMessage?: string;
 }
 
 const aiResponses = {
@@ -47,11 +47,11 @@ const getAIResponse = (message: string): string => {
   }
 };
 
-const ChatInterface = ({ onSendMessage }: ChatInterfaceProps) => {
+const ChatInterface = ({ onSendMessage, welcomeMessage }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Hello! I'm your AI assistant for Tangle Blueprint. I can help you create and modify infrastructure-as-code templates. How can I assist you today?",
+      text: welcomeMessage || "Hello! I'm your AI assistant for Tangle Blueprint. I can help you create and modify infrastructure-as-code templates. How can I assist you today?",
       sender: "ai",
       timestamp: new Date(),
     },

@@ -24,10 +24,18 @@ const TangleBlueprintApp = () => {
   }`);
 
   const activeProject = useActiveProject((state) => state.activeProject);
+  const setActiveProject = useActiveProject((state) => state.setActiveProject);
 
   const handleSendMessage = (message: string) => {
-    console.log("Sending message:", message);
-    // Here you would integrate with your AI service
+    if (!activeProject) {
+      // Create a new project when first message is sent
+      const newProject = {
+        id: Date.now().toString(),
+        name: message.slice(0, 30),
+        path: `/projects/${message.slice(0, 30).toLowerCase().replace(/\s+/g, '-')}`
+      };
+      setActiveProject(newProject);
+    }
   };
 
   const handleSaveCode = () => {
@@ -59,8 +67,13 @@ const TangleBlueprintApp = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] text-muted-foreground">
-          Select a project to get started
+        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-card">
+          <div className="max-w-2xl w-full px-4">
+            <ChatInterface 
+              onSendMessage={handleSendMessage}
+              welcomeMessage="What Tangle Blueprint do you want to imagine?"
+            />
+          </div>
         </div>
       )}
     </MainLayout>
