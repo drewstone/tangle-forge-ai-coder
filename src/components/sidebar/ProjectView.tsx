@@ -36,25 +36,23 @@ const initialFileStructure = {
 const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
   const { activeProject, setActiveProject } = useActiveProject();
   const [fileStructure, setFileStructure] = useState(initialFileStructure);
-
+  
   if (!activeProject) return null;
 
-  const toggleDirectory = (path: string) => {
-    // Clone and modify the file structure to toggle the expanded state
-    const newStructure = JSON.parse(JSON.stringify(fileStructure));
+  const toggleDirectory = (path: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling
     
-    // Navigate to the directory in the structure
+    const newStructure = JSON.parse(JSON.stringify(fileStructure));
     const pathParts = path.split('/').filter(p => p);
     let current = newStructure;
     
     for (const part of pathParts) {
-      if (current[part]) {
+      if (current[part] && current[part].type === 'directory') {
         current = current[part];
       }
     }
     
-    // Toggle expanded state if it's a directory
-    if (current && current.type === 'directory') {
+    if (current.type === 'directory') {
       current.expanded = !current.expanded;
       setFileStructure(newStructure);
     }
@@ -120,7 +118,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-card">
       <div className="p-4 border-b flex items-center gap-2">
         {isCollapsed ? (
           <Tooltip>
@@ -148,20 +146,24 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="font-semibold">{activeProject.name}</h2>
+            <h2 className="font-semibold truncate">{activeProject.name}</h2>
           </>
         )}
       </div>
       
       <div className="flex-1 overflow-auto">
-        <CollapsibleSection title="Chats" defaultOpen={true}>
+        <CollapsibleSection 
+          title="Chats" 
+          defaultOpen={true}
+          isCollapsed={isCollapsed}
+        >
           <div className="space-y-1 px-2">
             {!isCollapsed ? (
               ['Setup Database', 'API Integration', 'Auth Config'].map((name, index) => (
                 <Button
                   key={index}
                   variant="ghost"
-                  className="w-full justify-start text-sm h-8"
+                  className="w-full justify-start text-sm h-8 hover:bg-muted"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   {name}
@@ -173,12 +175,12 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-center text-sm h-8"
+                      className="w-full justify-center text-sm h-8 hover:bg-muted"
                     >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
+                  <TooltipContent side="right" className="max-w-[200px]">
                     {name}
                   </TooltipContent>
                 </Tooltip>
@@ -187,7 +189,11 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Files" defaultOpen={true}>
+        <CollapsibleSection 
+          title="Files" 
+          defaultOpen={true}
+          isCollapsed={isCollapsed}
+        >
           <div className="space-y-1 px-2">
             {renderFileTree(fileStructure)}
           </div>

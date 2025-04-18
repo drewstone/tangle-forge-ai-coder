@@ -1,44 +1,56 @@
 
-import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { useState } from "react";
+import { useState } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  isCollapsed?: boolean;
 }
 
-const CollapsibleSection = ({ title, children, defaultOpen = false }: CollapsibleSectionProps) => {
+const CollapsibleSection = ({ 
+  title, 
+  children, 
+  defaultOpen = false,
+  isCollapsed = false
+}: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  const toggleSection = () => setIsOpen(!isOpen);
+
+  const header = (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={toggleSection}
+      className="w-full justify-between px-2 hover:bg-muted"
+    >
+      <span className="flex items-center">
+        {isOpen ? <ChevronDown className="h-4 w-4 mr-2" /> : <ChevronRight className="h-4 w-4 mr-2" />}
+        {!isCollapsed && title}
+      </span>
+    </Button>
+  );
+
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <CollapsibleTrigger asChild>
-        <Button
-          variant="ghost"
-          className="w-full flex items-center justify-between px-2 py-1 h-8"
-        >
-          <span className="text-xs uppercase font-semibold text-muted-foreground">
+    <div className="py-2">
+      {isCollapsed ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {header}
+          </TooltipTrigger>
+          <TooltipContent side="right">
             {title}
-          </span>
-          <ChevronDown
-            size={16}
-            className={`transform transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="px-1 pb-2">
-        {children}
-      </CollapsibleContent>
-    </Collapsible>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        header
+      )}
+      {isOpen && <div className="mt-1">{children}</div>}
+    </div>
   );
 };
 
