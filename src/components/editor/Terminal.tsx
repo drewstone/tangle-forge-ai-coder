@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronUp, ChevronDown, X, Terminal as TerminalIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TerminalProps {
   isOpen?: boolean;
@@ -25,12 +26,20 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
       timestamp: new Date()
     }
   ]);
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const toggleExpanded = () => {
     const newState = !expanded;
     setExpanded(newState);
     if (onToggle) onToggle();
+    
+    // Focus input when expanding
+    if (newState && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
   };
 
   const clearTerminal = () => {
@@ -56,11 +65,41 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
     setMessages((prev) => [...prev, newMessage]);
   };
 
+  // Simulate streaming response
+  const simulateStreamingResponse = (command: string) => {
+    // Add user command to terminal
+    addMessage(`$ ${command}`, "command");
+    
+    // For demonstration purposes - will be replaced with actual server calls
+    if (command.includes("build") || command.includes("make")) {
+      const steps = ["Compiling...", "Linking...", "Optimizing...", "Build successful"];
+      let i = 0;
+      
+      const interval = setInterval(() => {
+        addMessage(steps[i], i === steps.length - 1 ? "success" : "info");
+        i++;
+        
+        if (i >= steps.length) {
+          clearInterval(interval);
+        }
+      }, 500);
+      
+    } else {
+      addMessage(`Command '${command}' executed`, "info");
+    }
+  };
+
+  const handleInputSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+    
+    simulateStreamingResponse(inputValue);
+    setInputValue("");
+  };
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Expose the addMessage function to parent components
@@ -74,6 +113,13 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
       delete window.addTerminalMessage;
     };
   }, []);
+
+  // Handle click anywhere in terminal to focus input
+  const handleTerminalClick = () => {
+    if (expanded && inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   if (!expanded) {
     return (
@@ -108,19 +154,38 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
           </Button>
         </div>
       </div>
+      
       <div 
         ref={terminalRef}
-        className="flex-1 overflow-auto p-4 font-mono text-sm"
+        className="flex-1 overflow-hidden"
+        onClick={handleTerminalClick}
       >
-        {messages.map((msg) => (
-          <div key={msg.id} className={`mb-1 ${getMessageClass(msg.type)}`}>
-            <span className="text-muted-foreground mr-2 opacity-60">
-              [{msg.timestamp.toLocaleTimeString()}]
-            </span>
-            {msg.text}
+        <ScrollArea className="h-full">
+          <div className="p-4 font-mono text-sm">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`mb-1 ${getMessageClass(msg.type)}`}>
+                <span className="text-muted-foreground mr-2 opacity-60">
+                  [{msg.timestamp.toLocaleTimeString()}]
+                </span>
+                {msg.text}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
+        </ScrollArea>
       </div>
+      
+      <form onSubmit={handleInputSubmit} className="px-4 py-2 border-t border-white/10 flex">
+        <span className="text-green-400 mr-2">$</span>
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="flex-1 bg-transparent border-none outline-none text-white font-mono"
+          placeholder="Type command and press Enter..."
+        />
+      </form>
     </div>
   );
 };

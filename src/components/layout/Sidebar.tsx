@@ -22,7 +22,7 @@ const Sidebar = () => {
       </Button>
       <div className="flex-1 overflow-hidden">
         {activeProject ? 
-          <ProjectView /> : 
+          <ProjectView isCollapsed={isCollapsed} /> : 
           <ProjectList isCollapsed={isCollapsed} />
         }
       </div>
