@@ -26,17 +26,18 @@ const CollapsibleSection = ({
       variant="ghost"
       size="sm"
       onClick={toggleSection}
-      className="w-full justify-between px-2 hover:bg-muted"
+      className={`w-full flex items-center justify-${isCollapsed ? 'center' : 'between'} px-2 hover:bg-muted mb-1`}
     >
-      <span className="flex items-center">
-        {isOpen ? <ChevronDown className="h-4 w-4 mr-2" /> : <ChevronRight className="h-4 w-4 mr-2" />}
-        {!isCollapsed && title}
-      </span>
+      {isOpen ? 
+        <ChevronDown className={`h-4 w-4 ${!isCollapsed && 'mr-2'}`} /> : 
+        <ChevronRight className={`h-4 w-4 ${!isCollapsed && 'mr-2'}`} />
+      }
+      {!isCollapsed && <span className="font-medium text-xs uppercase tracking-wider">{title}</span>}
     </Button>
   );
 
   return (
-    <div className="py-2">
+    <div className="py-2 border-b border-border/40 last:border-0">
       {isCollapsed ? (
         <Tooltip>
           <TooltipTrigger asChild>

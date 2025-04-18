@@ -44,14 +44,21 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
     
     const newStructure = JSON.parse(JSON.stringify(fileStructure));
     const pathParts = path.split('/').filter(p => p);
+    
+    // Navigate to the specific directory in the structure
     let current = newStructure;
+    let parent = null;
+    let lastKey = "";
     
     for (const part of pathParts) {
       if (current[part] && current[part].type === 'directory') {
+        parent = current;
+        lastKey = part;
         current = current[part];
       }
     }
     
+    // Only toggle the targeted directory without affecting parent directories
     if (current.type === 'directory') {
       current.expanded = !current.expanded;
       setFileStructure(newStructure);
@@ -60,7 +67,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
 
   const renderFileTree = (structure: any, path = "", level = 0) => {
     return Object.entries(structure).map(([name, info]: [string, any]) => {
-      const currentPath = `${path}/${name}`;
+      const currentPath = path ? `${path}/${name}` : name;
       const isDir = info.type === "directory";
       const isExpanded = isDir && info.expanded;
       
@@ -72,7 +79,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           key={currentPath}
           variant="ghost"
           className={`w-full justify-start text-sm h-8 ${isDir ? '' : 'font-mono'} pl-${level * 4 + 2}`}
-          onClick={() => isDir && toggleDirectory(currentPath)}
+          onClick={(e) => isDir && toggleDirectory(currentPath, e)}
         >
           {isDir ? (
             isExpanded ? 

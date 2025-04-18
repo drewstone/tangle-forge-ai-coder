@@ -9,6 +9,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { toast } from "sonner";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useFileCache } from "@/hooks/use-file-cache";
+import { useTheme } from "@/hooks/use-theme";
 
 const TangleBlueprintApp = () => {
   const [defaultCode] = useState(`fn main() {
@@ -28,8 +29,10 @@ const TangleBlueprintApp = () => {
   // Current file being edited
   const [currentFile, setCurrentFile] = useState("main.rs");
   const [currentCode, setCurrentCode] = useState(defaultCode);
-  const [editorTheme, setEditorTheme] = useState<"vs-dark" | "light">("vs-dark");
   const [terminalVisible, setTerminalVisible] = useState(false);
+  
+  const { theme: appTheme, setTheme: setAppTheme } = useTheme();
+  const editorTheme = appTheme === 'dark' ? 'vs-dark' : 'light';
   
   const activeProject = useActiveProject((state) => state.activeProject);
   const setActiveProject = useActiveProject((state) => state.setActiveProject);
@@ -48,7 +51,25 @@ const TangleBlueprintApp = () => {
     }
   }, []);
 
-  // Update cache when current file or code changes
+  // Auto-save functionality
+  useEffect(() => {
+    let autoSaveInterval: NodeJS.Timeout;
+    
+    if (currentFile && currentCode) {
+      autoSaveInterval = setInterval(() => {
+        fileCache.setFile(currentFile, currentCode);
+        console.log(`Auto-saving... ${currentCode.slice(0, 40)}...`);
+      }, 10000); // Auto-save every 10 seconds
+    }
+    
+    return () => {
+      if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
+      }
+    };
+  }, [currentFile, currentCode, fileCache]);
+  
+  // Update cache when current file or code changes immediately
   useEffect(() => {
     if (currentFile && currentCode) {
       fileCache.setFile(currentFile, currentCode);
@@ -83,13 +104,6 @@ const TangleBlueprintApp = () => {
     }, 3000);
   };
 
-  const handleSaveCode = () => {
-    // Cache the current file content
-    fileCache.setFile(currentFile, currentCode);
-    toast.success("Code saved successfully");
-    window.addTerminalMessage?.(`File ${currentFile} saved to backend`, "success");
-  };
-
   const handleRunCode = () => {
     toast.info("Running code...");
     window.addTerminalMessage?.("Executing code on backend server...", "command");
@@ -101,9 +115,10 @@ const TangleBlueprintApp = () => {
     }, 2000);
   };
 
-  const handleThemeChange = (theme: "vs-dark" | "light") => {
-    setEditorTheme(theme);
-    toast.info(`Switched to ${theme} theme`);
+  const handleThemeChange = () => {
+    const newTheme = appTheme === 'dark' ? 'light' : 'dark';
+    setAppTheme(newTheme);
+    toast.info(`Switched to ${newTheme} theme`);
   };
 
   const handleEditorChange = (value: string | undefined) => {
@@ -123,17 +138,16 @@ const TangleBlueprintApp = () => {
           <ResizablePanel defaultSize={65} minSize={30}>
             <div className="flex flex-col h-full">
               <EditorToolbar 
-                onSave={handleSaveCode} 
                 onRun={handleRunCode}
                 onThemeChange={handleThemeChange}
-                isDarkTheme={editorTheme === "vs-dark"}
+                isDarkTheme={appTheme === 'dark'}
               />
               <div className="flex-1 overflow-hidden relative">
                 <CodeEditor 
                   defaultValue={currentCode}
                   onChange={handleEditorChange}
-                  // The theme prop was causing a build error because it's not defined in CodeEditorProps
-                  // Removing it as CodeEditor should handle theme changes through its own implementation
+                  options={{ minimap: { enabled: false } }}
+                  theme={editorTheme}
                 />
                 <Terminal 
                   isOpen={terminalVisible}
