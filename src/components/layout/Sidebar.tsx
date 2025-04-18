@@ -21,7 +21,10 @@ const Sidebar = () => {
         <ChevronLeft className={`h-4 w-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
       </Button>
       <div className="flex-1 overflow-hidden">
-        {activeProject ? <ProjectView isCollapsed={isCollapsed} /> : <ProjectList isCollapsed={isCollapsed} />}
+        {activeProject ? 
+          <ProjectView /> : 
+          <ProjectList isCollapsed={isCollapsed} />
+        }
       </div>
     </aside>
   );

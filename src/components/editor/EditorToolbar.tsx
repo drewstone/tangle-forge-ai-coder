@@ -1,14 +1,32 @@
 
-import { Save, Play, Download, Share2, Settings } from "lucide-react";
+import { Save, Play, Share2, Settings, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface EditorToolbarProps {
   onSave?: () => void;
   onRun?: () => void;
+  onThemeToggle?: () => void;
+  isDarkTheme?: boolean;
 }
 
-const EditorToolbar = ({ onSave, onRun }: EditorToolbarProps) => {
+const EditorToolbar = ({ onSave, onRun, onThemeToggle, isDarkTheme = true }: EditorToolbarProps) => {
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  
+  // Auto-save functionality (simulated)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (onSave) {
+        onSave();
+        setLastSaved(new Date());
+      }
+    }, 30000); // Auto-save every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [onSave]);
+
   return (
     <div className="flex justify-between items-center px-4 py-2 border-b border-border bg-card">
       <div className="flex items-center gap-2">
@@ -22,16 +40,11 @@ const EditorToolbar = ({ onSave, onRun }: EditorToolbarProps) => {
             <SelectItem value="Cargo.toml">Cargo.toml</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="rust">
-          <SelectTrigger className="w-[100px]">
-            <SelectValue placeholder="Language" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="rust">Rust</SelectItem>
-            <SelectItem value="toml">TOML</SelectItem>
-            <SelectItem value="markdown">Markdown</SelectItem>
-          </SelectContent>
-        </Select>
+        {lastSaved && (
+          <span className="text-xs text-muted-foreground">
+            Last saved: {lastSaved.toLocaleTimeString()}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onSave}>
@@ -42,9 +55,9 @@ const EditorToolbar = ({ onSave, onRun }: EditorToolbarProps) => {
           <Play className="h-4 w-4 mr-2" />
           Run
         </Button>
-        <Button variant="ghost" size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Export
+        <Button variant="ghost" size="sm" onClick={onThemeToggle}>
+          <Monitor className="h-4 w-4 mr-2" />
+          Theme
         </Button>
         <Button variant="ghost" size="sm">
           <Share2 className="h-4 w-4 mr-2" />

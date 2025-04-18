@@ -23,6 +23,7 @@ const TangleBlueprintApp = () => {
     blueprint.deploy();
   }`);
 
+  const [editorTheme, setEditorTheme] = useState<"vs-dark" | "light">("vs-dark");
   const activeProject = useActiveProject((state) => state.activeProject);
   const setActiveProject = useActiveProject((state) => state.setActiveProject);
 
@@ -40,13 +41,22 @@ const TangleBlueprintApp = () => {
 
   const handleSaveCode = () => {
     toast.success("Code saved successfully");
+    window.addTerminalMessage?.("File saved to backend", "success");
   };
 
   const handleRunCode = () => {
     toast.info("Running code...");
+    window.addTerminalMessage?.("Executing code on backend server...", "command");
+    
     setTimeout(() => {
+      window.addTerminalMessage?.("Build successful", "success");
       toast.success("Code executed successfully");
     }, 2000);
+  };
+
+  const toggleTheme = () => {
+    setEditorTheme(prev => prev === "vs-dark" ? "light" : "vs-dark");
+    toast.info(`Switched to ${editorTheme === "vs-dark" ? "light" : "dark"} theme`);
   };
 
   return (
@@ -59,9 +69,16 @@ const TangleBlueprintApp = () => {
           <ResizableHandle />
           <ResizablePanel defaultSize={65} minSize={30}>
             <div className="flex flex-col h-full">
-              <EditorToolbar onSave={handleSaveCode} onRun={handleRunCode} />
-              <div className="flex-1 overflow-hidden">
-                <CodeEditor defaultValue={defaultCode} />
+              <EditorToolbar 
+                onSave={handleSaveCode} 
+                onRun={handleRunCode}
+                onThemeToggle={toggleTheme}
+                isDarkTheme={editorTheme === "vs-dark"}
+              />
+              <div className="flex-1 overflow-hidden relative">
+                <CodeEditor 
+                  defaultValue={defaultCode} 
+                />
               </div>
             </div>
           </ResizablePanel>
