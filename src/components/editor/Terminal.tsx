@@ -27,9 +27,13 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
     }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
 
   const toggleExpanded = () => {
     const newState = !expanded;
@@ -65,10 +69,14 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  // Simulate streaming response
+  // Simulate streaming response from server
   const simulateStreamingResponse = (command: string) => {
     // Add user command to terminal
     addMessage(`$ ${command}`, "command");
+    
+    // Add to command history
+    setCommandHistory(prev => [...prev, command]);
+    setHistoryIndex(-1);
     
     // For demonstration purposes - will be replaced with actual server calls
     if (command.includes("build") || command.includes("make")) {
@@ -84,17 +92,101 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
         }
       }, 500);
       
+    } else if (command.includes("clear")) {
+      clearTerminal();
+    } else if (command.trim() === "") {
+      // Just add a new line
     } else {
-      addMessage(`Command '${command}' executed`, "info");
+      // Echo command back with some flair
+      setTimeout(() => {
+        addMessage(`Executing: ${command}`, "info");
+      }, 100);
+      
+      setTimeout(() => {
+        addMessage(`Command '${command}' executed`, "success");
+      }, 500);
     }
   };
 
   const handleInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
-    
-    simulateStreamingResponse(inputValue);
-    setInputValue("");
+    if (inputValue.trim() !== "" || inputValue === "") {
+      simulateStreamingResponse(inputValue);
+      setInputValue("");
+      setCursorPosition(0);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    setCursorPosition(e.target.selectionStart || 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      // Navigate up through command history
+      if (commandHistory.length > 0) {
+        const newIndex = historyIndex < commandHistory.length - 1 ? historyIndex + 1 : historyIndex;
+        setHistoryIndex(newIndex);
+        if (newIndex >= 0) {
+          const command = commandHistory[commandHistory.length - 1 - newIndex];
+          setInputValue(command);
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.selectionStart = command.length;
+              inputRef.current.selectionEnd = command.length;
+              setCursorPosition(command.length);
+            }
+          }, 0);
+        }
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      // Navigate down through command history
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        const command = commandHistory[commandHistory.length - 1 - newIndex];
+        setInputValue(command);
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.selectionStart = command.length;
+            inputRef.current.selectionEnd = command.length;
+            setCursorPosition(command.length);
+          }
+        }, 0);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setInputValue("");
+        setCursorPosition(0);
+      }
+    } else if (e.key === "ArrowLeft") {
+      const pos = e.currentTarget.selectionStart || 0;
+      setTimeout(() => setCursorPosition(pos - 1 >= 0 ? pos - 1 : 0), 0);
+    } else if (e.key === "ArrowRight") {
+      const pos = e.currentTarget.selectionStart || 0;
+      setTimeout(() => setCursorPosition(pos + 1 <= inputValue.length ? pos + 1 : inputValue.length), 0);
+    } else if (e.key === "Home") {
+      setTimeout(() => setCursorPosition(0), 0);
+    } else if (e.key === "End") {
+      setTimeout(() => setCursorPosition(inputValue.length), 0);
+    } else {
+      // For other keys, update cursor position after a short delay
+      setTimeout(() => {
+        if (inputRef.current) {
+          setCursorPosition(inputRef.current.selectionStart || 0);
+        }
+      }, 0);
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        setCursorPosition(inputRef.current.selectionStart || 0);
+      }
+    }, 0);
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -113,6 +205,11 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
       delete window.addTerminalMessage;
     };
   }, []);
+
+  // Update expanded state when isOpen prop changes
+  useEffect(() => {
+    setExpanded(isOpen);
+  }, [isOpen]);
 
   // Handle click anywhere in terminal to focus input
   const handleTerminalClick = () => {
@@ -139,6 +236,7 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
     <div 
       className="absolute bottom-0 left-0 right-0 flex flex-col bg-black text-white border-t border-border"
       style={{ height: "30vh", minHeight: "150px" }}
+      onClick={handleTerminalClick}
     >
       <div className="flex justify-between items-center px-4 py-1 bg-card text-card-foreground border-b border-border">
         <div className="flex items-center gap-2">
@@ -157,8 +255,7 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
       
       <div 
         ref={terminalRef}
-        className="flex-1 overflow-hidden"
-        onClick={handleTerminalClick}
+        className="flex-1 overflow-hidden cursor-text"
       >
         <ScrollArea className="h-full">
           <div className="p-4 font-mono text-sm">
@@ -175,16 +272,32 @@ const Terminal = ({ isOpen = false, onToggle }: TerminalProps) => {
         </ScrollArea>
       </div>
       
-      <form onSubmit={handleInputSubmit} className="px-4 py-2 border-t border-white/10 flex">
+      <form onSubmit={handleInputSubmit} className="px-4 py-2 border-t border-white/10 flex relative">
         <span className="text-green-400 mr-2">$</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="flex-1 bg-transparent border-none outline-none text-white font-mono"
-          placeholder="Type command and press Enter..."
-        />
+        <div className="flex-1 relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onClick={handleClick}
+            className="w-full bg-transparent border-none outline-none text-white font-mono caret-transparent"
+            placeholder=""
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+          <div 
+            className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none font-mono whitespace-pre"
+          >
+            <span className="opacity-0">{inputValue.substring(0, cursorPosition)}</span>
+            <span 
+              ref={cursorRef} 
+              className="inline-block w-[2px] h-[14px] bg-white animate-blink-fast align-middle"
+            ></span>
+          </div>
+        </div>
       </form>
     </div>
   );

@@ -1,24 +1,27 @@
 
-import { ArrowLeft, MessageSquare, File, Folder } from "lucide-react";
+import { ArrowLeft, MessageSquare, File, Folder, ChevronRight, ChevronDown } from "lucide-react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { Button } from "@/components/ui/button";
 import CollapsibleSection from "./CollapsibleSection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import FileContextMenu from "./FileContextMenu";
+import { useState } from "react";
 
 interface ProjectViewProps {
   isCollapsed?: boolean;
 }
 
 // Sample directory structure for demonstration
-const fileStructure = {
+const initialFileStructure = {
   "src": {
     type: "directory",
+    expanded: true,
     children: {
       "main.rs": { type: "file" },
       "lib.rs": { type: "file" },
       "models": {
         type: "directory",
+        expanded: false,
         children: {
           "user.rs": { type: "file" },
           "product.rs": { type: "file" }
@@ -32,13 +35,36 @@ const fileStructure = {
 
 const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
   const { activeProject, setActiveProject } = useActiveProject();
+  const [fileStructure, setFileStructure] = useState(initialFileStructure);
 
   if (!activeProject) return null;
+
+  const toggleDirectory = (path: string) => {
+    // Clone and modify the file structure to toggle the expanded state
+    const newStructure = JSON.parse(JSON.stringify(fileStructure));
+    
+    // Navigate to the directory in the structure
+    const pathParts = path.split('/').filter(p => p);
+    let current = newStructure;
+    
+    for (const part of pathParts) {
+      if (current[part]) {
+        current = current[part];
+      }
+    }
+    
+    // Toggle expanded state if it's a directory
+    if (current && current.type === 'directory') {
+      current.expanded = !current.expanded;
+      setFileStructure(newStructure);
+    }
+  };
 
   const renderFileTree = (structure: any, path = "", level = 0) => {
     return Object.entries(structure).map(([name, info]: [string, any]) => {
       const currentPath = `${path}/${name}`;
       const isDir = info.type === "directory";
+      const isExpanded = isDir && info.expanded;
       
       // Skip rendering deeply nested files when collapsed
       if (isCollapsed && level > 0) return null;
@@ -48,9 +74,21 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           key={currentPath}
           variant="ghost"
           className={`w-full justify-start text-sm h-8 ${isDir ? '' : 'font-mono'} pl-${level * 4 + 2}`}
+          onClick={() => isDir && toggleDirectory(currentPath)}
         >
-          {isDir ? <Folder className="mr-2 h-4 w-4" /> : <File className="mr-2 h-4 w-4" />}
-          {!isCollapsed && name}
+          {isDir ? (
+            isExpanded ? 
+              <ChevronDown className="mr-2 h-4 w-4" /> : 
+              <ChevronRight className="mr-2 h-4 w-4" />
+          ) : (
+            <File className="mr-2 h-4 w-4" />
+          )}
+          {!isCollapsed && (
+            <span className="flex items-center">
+              {isDir && <Folder className="mr-2 h-4 w-4" />}
+              {name}
+            </span>
+          )}
         </Button>
       );
       
@@ -71,7 +109,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
             {wrappedButton}
           </FileContextMenu>
           
-          {isDir && info.children && !isCollapsed && 
+          {isDir && info.children && !isCollapsed && isExpanded && 
             <div className="ml-2">
               {renderFileTree(info.children, currentPath, level + 1)}
             </div>

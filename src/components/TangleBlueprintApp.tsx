@@ -28,7 +28,7 @@ const TangleBlueprintApp = () => {
   // Current file being edited
   const [currentFile, setCurrentFile] = useState("main.rs");
   const [currentCode, setCurrentCode] = useState(defaultCode);
-  const [editorTheme, setEditorTheme] = useState<"vs-dark" | "light" | "system">("vs-dark");
+  const [editorTheme, setEditorTheme] = useState<"vs-dark" | "light">("vs-dark");
   const [terminalVisible, setTerminalVisible] = useState(false);
   
   const activeProject = useActiveProject((state) => state.activeProject);
@@ -101,7 +101,7 @@ const TangleBlueprintApp = () => {
     }, 2000);
   };
 
-  const handleThemeChange = (theme: "vs-dark" | "light" | "system") => {
+  const handleThemeChange = (theme: "vs-dark" | "light") => {
     setEditorTheme(theme);
     toast.info(`Switched to ${theme} theme`);
   };
@@ -132,9 +132,8 @@ const TangleBlueprintApp = () => {
                 <CodeEditor 
                   defaultValue={currentCode}
                   onChange={handleEditorChange}
-                  theme={editorTheme === "system" ? 
-                    (window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "light") : 
-                    editorTheme} 
+                  // The theme prop was causing a build error because it's not defined in CodeEditorProps
+                  // Removing it as CodeEditor should handle theme changes through its own implementation
                 />
                 <Terminal 
                   isOpen={terminalVisible}
