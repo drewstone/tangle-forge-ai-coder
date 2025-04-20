@@ -1,5 +1,5 @@
 
-import { Play, Monitor } from "lucide-react";
+import { Play, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/use-theme";
+import { toast } from "sonner";
 
 interface EditorToolbarProps {
   onRun?: () => void;
@@ -16,10 +17,15 @@ interface EditorToolbarProps {
 const EditorToolbar = ({ onRun }: EditorToolbarProps) => {
   const { theme, setTheme } = useTheme();
 
+  const handleThemeChange = (newTheme: "light" | "dark") => {
+    setTheme(newTheme);
+    toast.success(`Switched to ${newTheme} theme`);
+  };
+
   return (
     <div className="flex justify-between items-center px-4 py-2 border-b border-border bg-card">
       <div className="text-sm text-muted-foreground">
-        Last saved: {new Date().toLocaleTimeString()}
+        Auto-saving enabled
       </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onRun}>
@@ -30,15 +36,21 @@ const EditorToolbar = ({ onRun }: EditorToolbarProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
-              <Monitor className="h-4 w-4 mr-2" />
+              {theme === 'dark' ? (
+                <Moon className="h-4 w-4 mr-2" />
+              ) : (
+                <Sun className="h-4 w-4 mr-2" />
+              )}
               {theme === 'dark' ? 'Dark' : 'Light'} Theme
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
+              <Moon className="h-4 w-4 mr-2" />
               Dark
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("light")}>
+            <DropdownMenuItem onClick={() => handleThemeChange("light")}>
+              <Sun className="h-4 w-4 mr-2" />
               Light
             </DropdownMenuItem>
           </DropdownMenuContent>

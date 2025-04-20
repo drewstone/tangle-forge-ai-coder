@@ -1,9 +1,7 @@
 
 import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
-import Terminal from "./Terminal";
 import { useTheme } from "@/hooks/use-theme";
-import { toast } from "sonner";
 
 interface CodeEditorProps {
   defaultValue?: string;
@@ -17,17 +15,6 @@ const CodeEditor = ({
   onChange,
 }: CodeEditorProps) => {
   const { theme } = useTheme();
-
-  // Auto-save functionality
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // This is where we would send the value to the backend
-      console.log("Auto-saving...");
-      toast.success("Changes saved automatically");
-    }, 30000); // Auto-save every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="h-full w-full overflow-hidden relative">

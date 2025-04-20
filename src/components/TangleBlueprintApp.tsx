@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useFileCache } from "@/hooks/use-file-cache";
 import { useTheme } from "@/hooks/use-theme";
+import { Code, Sparkles } from "lucide-react";
 
 const TangleBlueprintApp = () => {
   const [defaultCode] = useState(`fn main() {
@@ -31,8 +32,7 @@ const TangleBlueprintApp = () => {
   const [currentCode, setCurrentCode] = useState(defaultCode);
   const [terminalVisible, setTerminalVisible] = useState(false);
   
-  const { theme: appTheme, setTheme: setAppTheme } = useTheme();
-  const editorTheme = appTheme === 'dark' ? 'vs-dark' : 'light';
+  const { theme } = useTheme();
   
   const activeProject = useActiveProject((state) => state.activeProject);
   const setActiveProject = useActiveProject((state) => state.setActiveProject);
@@ -115,12 +115,6 @@ const TangleBlueprintApp = () => {
     }, 2000);
   };
 
-  const handleThemeChange = () => {
-    const newTheme = appTheme === 'dark' ? 'light' : 'dark';
-    setAppTheme(newTheme);
-    toast.info(`Switched to ${newTheme} theme`);
-  };
-
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
       setCurrentCode(value);
@@ -137,17 +131,11 @@ const TangleBlueprintApp = () => {
           <ResizableHandle />
           <ResizablePanel defaultSize={65} minSize={30}>
             <div className="flex flex-col h-full">
-              <EditorToolbar 
-                onRun={handleRunCode}
-                onThemeChange={handleThemeChange}
-                isDarkTheme={appTheme === 'dark'}
-              />
+              <EditorToolbar onRun={handleRunCode} />
               <div className="flex-1 overflow-hidden relative">
                 <CodeEditor 
                   defaultValue={currentCode}
                   onChange={handleEditorChange}
-                  options={{ minimap: { enabled: false } }}
-                  theme={editorTheme}
                 />
                 <Terminal 
                   isOpen={terminalVisible}
@@ -158,12 +146,44 @@ const TangleBlueprintApp = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-card">
-          <div className="max-w-2xl w-full px-4">
-            <ChatInterface 
-              onSendMessage={handleSendMessage}
-              welcomeMessage="What Tangle Blueprint do you want to imagine?"
-            />
+        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-background">
+          <div className="max-w-3xl w-full px-6 py-12">
+            <div className="mb-12 text-center">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Code className="h-10 w-10 text-primary" />
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+                Tangle Blueprint
+              </h1>
+              <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Design, deploy and manage your infrastructure with AI assistance.
+              </p>
+            </div>
+            
+            <div className="bg-card/60 backdrop-blur-sm border border-border rounded-xl p-8 shadow-lg">
+              <ChatInterface 
+                onSendMessage={handleSendMessage}
+                welcomeMessage="What infrastructure blueprint would you like to create today?"
+              />
+            </div>
+            
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 rounded-lg bg-card/40 border border-border">
+                <h3 className="text-lg font-medium mb-2">Infrastructure as Code</h3>
+                <p className="text-muted-foreground">Define your entire infrastructure stack using simple, readable code.</p>
+              </div>
+              
+              <div className="p-6 rounded-lg bg-card/40 border border-border">
+                <h3 className="text-lg font-medium mb-2">AI-Powered</h3>
+                <p className="text-muted-foreground">Let the AI suggest optimizations and best practices for your deployments.</p>
+              </div>
+              
+              <div className="p-6 rounded-lg bg-card/40 border border-border">
+                <h3 className="text-lg font-medium mb-2">Multi-Cloud</h3>
+                <p className="text-muted-foreground">Deploy to any cloud provider with a unified workflow and experience.</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

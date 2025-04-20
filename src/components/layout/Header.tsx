@@ -1,24 +1,26 @@
 
-import { Moon, Sun, Code } from "lucide-react";
+import { Moon, Sun, Code, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ViewModeSelector from "./ViewModeSelector";
 import { useState } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
+import { useTheme } from "@/hooks/use-theme";
 
-interface HeaderProps {
-  toggleDarkMode: () => void;
-  isDarkMode: boolean;
-}
-
-const Header = ({ toggleDarkMode, isDarkMode }: HeaderProps) => {
+const Header = () => {
   const [viewMode, setViewMode] = useState<"chat" | "split" | "editor">("split");
   const activeProject = useActiveProject((state) => state.activeProject);
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
-    <header className="border-b border-border">
+    <header className="border-b border-border bg-card">
       <div className="flex items-center justify-between h-14 px-4">
         <div className="flex items-center gap-2">
           <Code className="h-6 w-6 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary" />
           <span className="font-semibold text-lg">Tangle Blueprint</span>
         </div>
         {activeProject && (
@@ -27,8 +29,8 @@ const Header = ({ toggleDarkMode, isDarkMode }: HeaderProps) => {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         </div>
       </div>
