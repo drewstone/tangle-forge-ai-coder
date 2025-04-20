@@ -38,37 +38,34 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
   
   if (!activeProject) return null;
 
-  const renderFileTree = (structure: Record<string, FileNode>, path = "", level = 0) => {
+  const renderFileTree = (structure: Record<string, FileNode>, basePath = "", level = 0) => {
     return Object.entries(structure).map(([name, info]) => {
-      const currentPath = path ? `${path}/${name}` : name;
+      const currentPath = basePath ? `${basePath}/${name}` : name;
       const isDir = info.type === "directory";
       const isExpanded = isDir && info.expanded;
-      
-      if (isCollapsed && level > 0) return null;
       
       const fileButton = (
         <Button
           key={currentPath}
           variant="ghost"
-          className={`w-full justify-start text-sm h-9 ${isDir ? '' : 'font-mono'} pl-${level * 4 + 2}`}
+          className={`w-full justify-start text-left text-sm h-9 px-2 ${isDir ? 'font-medium' : 'font-mono'}`}
+          style={{ paddingLeft: `${level * 12 + 8}px` }}
           onClick={(e) => {
             e.stopPropagation();
             if (isDir) toggleDirectory(currentPath);
           }}
         >
-          {isDir ? (
-            isExpanded ? 
-              <ChevronDown className="mr-2 h-4 w-4" /> : 
-              <ChevronRight className="mr-2 h-4 w-4" />
-          ) : (
-            <File className="mr-2 h-4 w-4" />
-          )}
-          {!isCollapsed && (
-            <span className="flex items-center">
-              {isDir && <Folder className="mr-2 h-4 w-4" />}
-              {name}
-            </span>
-          )}
+          <div className="flex items-center w-full overflow-hidden">
+            {isDir && (isExpanded ? 
+              <ChevronDown className="mr-1 h-4 w-4 flex-shrink-0" /> : 
+              <ChevronRight className="mr-1 h-4 w-4 flex-shrink-0" />
+            )}
+            {isDir ? 
+              <Folder className="mr-2 h-4 w-4 flex-shrink-0 text-blue-500" /> : 
+              <File className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400" />
+            }
+            <span className="truncate">{name}</span>
+          </div>
         </Button>
       );
       
@@ -89,8 +86,8 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
             {wrappedButton}
           </FileContextMenu>
           
-          {isDir && info.children && !isCollapsed && isExpanded && 
-            <div className="ml-2">
+          {isDir && info.children && isExpanded && 
+            <div className="w-full">
               {renderFileTree(info.children, currentPath, level + 1)}
             </div>
           }
@@ -176,7 +173,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           defaultOpen={true}
           isCollapsed={isCollapsed}
         >
-          <div className="space-y-1 px-3">
+          <div className="space-y-1 px-1">
             {renderFileTree(structure)}
           </div>
         </CollapsibleSection>

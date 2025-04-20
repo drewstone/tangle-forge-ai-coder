@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import CodeEditor from "@/components/editor/CodeEditor";
@@ -128,7 +127,7 @@ const TangleBlueprintApp = () => {
           <ResizablePanel defaultSize={35} minSize={20}>
             <ChatInterface onSendMessage={handleSendMessage} />
           </ResizablePanel>
-          <ResizableHandle />
+          <ResizableHandle withHandle />
           <ResizablePanel defaultSize={65} minSize={30}>
             <div className="flex flex-col h-full">
               <EditorToolbar onRun={handleRunCode} />

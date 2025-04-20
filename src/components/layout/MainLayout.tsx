@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useTheme, ThemeInitializer } from "@/hooks/use-theme";
-import { ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -22,13 +22,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <ThemeInitializer />
       <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
-            <Sidebar />
-            <main className="flex-1 overflow-auto p-0">
-              {children}
-            </main>
-          </ResizablePanelGroup>
+        <div className="flex-1 flex overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 overflow-auto">
+            {children}
+          </main>
         </div>
       </div>
     </>

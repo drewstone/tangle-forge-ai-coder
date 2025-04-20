@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 interface FileNode {
@@ -13,34 +12,32 @@ export const useFileTree = (initialStructure: Record<string, FileNode>) => {
   const toggleDirectory = (path: string) => {
     setStructure(prev => {
       const newStructure = JSON.parse(JSON.stringify(prev)); // Deep clone to avoid mutation issues
+      
+      // Navigate to the target directory using path segments
       const parts = path.split('/');
       let current = newStructure;
-      let parentPath = '';
+      let parent = null;
+      let lastKey = '';
       
-      // Navigate to the target directory
+      // Navigate through the path segments
       for (let i = 0; i < parts.length; i++) {
         const part = parts[i];
-        const currentPath = parentPath ? `${parentPath}/${part}` : part;
         
         if (!current[part]) {
           return prev; // Path doesn't exist
         }
         
         if (i === parts.length - 1) {
-          // Toggle only the target directory
+          // Toggle only the target directory's expanded state
           current[part] = {
             ...current[part],
             expanded: !current[part].expanded
           };
-          return newStructure;
-        }
-        
-        // Continue navigating down the path
-        if (current[part].type === 'directory') {
-          current = current[part].children || {};
-          parentPath = currentPath;
         } else {
-          return prev; // Not a directory, can't continue
+          // Keep navigating through the path
+          parent = current;
+          lastKey = part;
+          current = current[part].children || {};
         }
       }
       

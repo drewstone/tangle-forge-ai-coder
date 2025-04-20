@@ -15,6 +15,12 @@ const Header = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const handleViewModeChange = (mode: "chat" | "split" | "editor") => {
+    setViewMode(mode);
+    // In a real app, we would update the layout based on the selected mode
+    console.log(`View mode changed to: ${mode}`);
+  };
+
   return (
     <header className="border-b border-border bg-card">
       <div className="flex items-center justify-between h-14 px-4">
@@ -25,7 +31,7 @@ const Header = () => {
         </div>
         {activeProject && (
           <div className="flex-1 flex justify-center">
-            <ViewModeSelector currentMode={viewMode} onModeChange={setViewMode} />
+            <ViewModeSelector currentMode={viewMode} onModeChange={handleViewModeChange} />
           </div>
         )}
         <div className="flex items-center gap-2">
