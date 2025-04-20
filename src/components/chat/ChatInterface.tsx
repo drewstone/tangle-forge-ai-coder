@@ -1,5 +1,6 @@
+
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot } from "lucide-react";
+import { Send, Bot, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CodeBlock from "@/components/chat/CodeBlock";
@@ -98,29 +99,29 @@ const ChatInterface = ({ onSendMessage, welcomeMessage }: ChatInterfaceProps) =>
   };
 
   return (
-    <div className="flex flex-col h-full bg-card">
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-4">
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="space-y-6">
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`chat-message ${message.sender === "user" ? "user" : "ai"} flex`}
+              className={`chat-message ${message.sender === "user" ? "user" : "ai"} flex items-start`}
             >
-              <div className="flex-shrink-0 mr-3 mt-1">
+              <div className="flex-shrink-0 mr-4">
                 {message.sender === "user" ? (
-                  <div className="bg-primary h-8 w-8 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary-foreground" />
+                  <div className="bg-primary/10 h-8 w-8 rounded-lg flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-primary" />
                   </div>
                 ) : (
-                  <div className="bg-muted h-8 w-8 rounded-full flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-muted-foreground" />
+                  <div className="bg-muted/50 h-8 w-8 rounded-lg flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-foreground/80" />
                   </div>
                 )}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 {message.text.includes("```") ? (
                   <>
-                    <p className="text-sm whitespace-pre-wrap">
+                    <p className="text-base leading-relaxed">
                       {message.text.split("```")[0]}
                     </p>
                     {message.text.split("```").length > 1 && 
@@ -135,13 +136,13 @@ const ChatInterface = ({ onSendMessage, welcomeMessage }: ChatInterfaceProps) =>
                       />
                     )}
                     {message.text.split("```").length > 2 && (
-                      <p className="text-sm whitespace-pre-wrap">
+                      <p className="text-base leading-relaxed">
                         {message.text.split("```").slice(2).join("```")}
                       </p>
                     )}
                   </>
                 ) : (
-                  <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                  <p className="text-base leading-relaxed">{message.text}</p>
                 )}
                 <span className="text-xs text-muted-foreground">
                   {message.timestamp.toLocaleTimeString([], { 
@@ -155,23 +156,33 @@ const ChatInterface = ({ onSendMessage, welcomeMessage }: ChatInterfaceProps) =>
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="border-t border-border p-4">
-        <div className="flex space-x-2">
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-          />
-          <Button onClick={handleSendMessage} size="icon">
-            <Send className="h-4 w-4" />
-          </Button>
+      
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-3xl mx-auto p-4">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Message Tangle Blueprint..."
+                className="pr-24 py-6 text-base shadow-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Plus className="h-5 w-5" />
+                </Button>
+                <Button onClick={handleSendMessage} size="icon" className="h-9 w-9">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

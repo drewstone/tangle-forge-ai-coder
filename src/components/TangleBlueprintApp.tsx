@@ -146,42 +146,44 @@ const TangleBlueprintApp = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-background">
-          <div className="max-w-3xl w-full px-6 py-12">
-            <div className="mb-12 text-center">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <Code className="h-10 w-10 text-primary" />
-                <Sparkles className="h-6 w-6 text-primary" />
+        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-background overflow-y-auto">
+          <div className="max-w-4xl w-full px-6 py-12">
+            <div className="mb-16 text-center space-y-6">
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <Code className="h-12 w-12 text-primary" />
+                <Sparkles className="h-8 w-8 text-primary" />
               </div>
-              <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
                 Tangle Blueprint
               </h1>
-              <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-3xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Design, deploy and manage your infrastructure with AI assistance.
               </p>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-border rounded-xl p-8 shadow-lg">
-              <ChatInterface 
-                onSendMessage={handleSendMessage}
-                welcomeMessage="What infrastructure blueprint would you like to create today?"
-              />
+            <div className="bg-card/60 backdrop-blur-sm border border-border rounded-xl shadow-2xl">
+              <div className="p-6">
+                <ChatInterface 
+                  onSendMessage={handleSendMessage}
+                  welcomeMessage="What infrastructure blueprint would you like to create today? I can help you design and implement your infrastructure using best practices."
+                />
+              </div>
             </div>
             
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-lg bg-card/40 border border-border">
-                <h3 className="text-lg font-medium mb-2">Infrastructure as Code</h3>
-                <p className="text-muted-foreground">Define your entire infrastructure stack using simple, readable code.</p>
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="p-8 rounded-xl bg-card/40 border border-border hover:bg-card/60 transition-colors">
+                <h3 className="text-xl font-semibold mb-3">Infrastructure as Code</h3>
+                <p className="text-muted-foreground text-lg">Define your entire infrastructure stack using simple, readable code.</p>
               </div>
               
-              <div className="p-6 rounded-lg bg-card/40 border border-border">
-                <h3 className="text-lg font-medium mb-2">AI-Powered</h3>
-                <p className="text-muted-foreground">Let the AI suggest optimizations and best practices for your deployments.</p>
+              <div className="p-8 rounded-xl bg-card/40 border border-border hover:bg-card/60 transition-colors">
+                <h3 className="text-xl font-semibold mb-3">AI-Powered</h3>
+                <p className="text-muted-foreground text-lg">Let the AI suggest optimizations and best practices for your deployments.</p>
               </div>
               
-              <div className="p-6 rounded-lg bg-card/40 border border-border">
-                <h3 className="text-lg font-medium mb-2">Multi-Cloud</h3>
-                <p className="text-muted-foreground">Deploy to any cloud provider with a unified workflow and experience.</p>
+              <div className="p-8 rounded-xl bg-card/40 border border-border hover:bg-card/60 transition-colors">
+                <h3 className="text-xl font-semibold mb-3">Multi-Cloud</h3>
+                <p className="text-muted-foreground text-lg">Deploy to any cloud provider with a unified workflow and experience.</p>
               </div>
             </div>
           </div>
