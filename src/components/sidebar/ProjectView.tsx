@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/button";
 import CollapsibleSection from "./CollapsibleSection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import FileContextMenu from "./FileContextMenu";
-import { useState } from "react";
+import { useFileTree, type FileNode } from "@/hooks/use-file-tree";
 
 interface ProjectViewProps {
   isCollapsed?: boolean;
 }
 
-// Sample directory structure for demonstration
-const initialFileStructure = {
+const initialFileStructure: Record<string, FileNode> = {
   "src": {
     type: "directory",
     expanded: true,
@@ -35,51 +34,27 @@ const initialFileStructure = {
 
 const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
   const { activeProject, setActiveProject } = useActiveProject();
-  const [fileStructure, setFileStructure] = useState(initialFileStructure);
+  const { structure, toggleDirectory } = useFileTree(initialFileStructure);
   
   if (!activeProject) return null;
 
-  const toggleDirectory = (path: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent event bubbling
-    
-    const newStructure = JSON.parse(JSON.stringify(fileStructure));
-    const pathParts = path.split('/').filter(p => p);
-    
-    // Navigate to the specific directory in the structure
-    let current = newStructure;
-    let parent = null;
-    let lastKey = "";
-    
-    for (const part of pathParts) {
-      if (current[part] && current[part].type === 'directory') {
-        parent = current;
-        lastKey = part;
-        current = current[part];
-      }
-    }
-    
-    // Only toggle the targeted directory without affecting parent directories
-    if (current.type === 'directory') {
-      current.expanded = !current.expanded;
-      setFileStructure(newStructure);
-    }
-  };
-
-  const renderFileTree = (structure: any, path = "", level = 0) => {
-    return Object.entries(structure).map(([name, info]: [string, any]) => {
+  const renderFileTree = (structure: Record<string, FileNode>, path = "", level = 0) => {
+    return Object.entries(structure).map(([name, info]) => {
       const currentPath = path ? `${path}/${name}` : name;
       const isDir = info.type === "directory";
       const isExpanded = isDir && info.expanded;
       
-      // Skip rendering deeply nested files when collapsed
       if (isCollapsed && level > 0) return null;
       
       const fileButton = (
         <Button
           key={currentPath}
           variant="ghost"
-          className={`w-full justify-start text-sm h-8 ${isDir ? '' : 'font-mono'} pl-${level * 4 + 2}`}
-          onClick={(e) => isDir && toggleDirectory(currentPath, e)}
+          className={`w-full justify-start text-sm h-9 ${isDir ? '' : 'font-mono'} pl-${level * 4 + 2}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isDir) toggleDirectory(currentPath);
+          }}
         >
           {isDir ? (
             isExpanded ? 
@@ -109,7 +84,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
       ) : fileButton;
 
       return (
-        <div key={currentPath}>
+        <div key={currentPath} className="w-full">
           <FileContextMenu path={currentPath} isDirectory={isDir}>
             {wrappedButton}
           </FileContextMenu>
@@ -164,13 +139,13 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           defaultOpen={true}
           isCollapsed={isCollapsed}
         >
-          <div className="space-y-1 px-2">
+          <div className="space-y-1 px-3">
             {!isCollapsed ? (
               ['Setup Database', 'API Integration', 'Auth Config'].map((name, index) => (
                 <Button
                   key={index}
                   variant="ghost"
-                  className="w-full justify-start text-sm h-8 hover:bg-muted"
+                  className="w-full justify-start text-base h-9 hover:bg-muted"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   {name}
@@ -182,7 +157,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-center text-sm h-8 hover:bg-muted"
+                      className="w-full justify-center text-base h-9 hover:bg-muted"
                     >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
@@ -201,8 +176,8 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           defaultOpen={true}
           isCollapsed={isCollapsed}
         >
-          <div className="space-y-1 px-2">
-            {renderFileTree(fileStructure)}
+          <div className="space-y-1 px-3">
+            {renderFileTree(structure)}
           </div>
         </CollapsibleSection>
       </div>
