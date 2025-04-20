@@ -14,33 +14,31 @@ const Sidebar = () => {
   const { theme } = useTheme();
 
   return (
-    <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel 
-        defaultSize={20} 
-        minSize={15} 
-        maxSize={40}
-        className={`border-r border-sidebar-border relative transition-all duration-300 ease-in-out ${
-          isCollapsed ? 'w-16' : ''
-        } bg-sidebar`}
+    <ResizablePanel 
+      defaultSize={20} 
+      minSize={15} 
+      maxSize={30}
+      className={`border-r border-sidebar-border relative transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16' : ''
+      } bg-sidebar`}
+    >
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`absolute top-4 z-50 shadow-md bg-background border border-border rounded-full transition-all duration-300 ${
+          isCollapsed ? '-right-3' : '-right-3'
+        } hover:bg-accent/50`}
+        onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`absolute top-4 z-50 shadow-md bg-background border border-border rounded-full transition-all duration-300 ${
-            isCollapsed ? '-right-3' : '-right-3'
-          } hover:bg-accent/50`}
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          <ChevronLeft className={`h-4 w-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
-        </Button>
-        <div className="flex-1 overflow-hidden h-full">
-          {activeProject ? 
-            <ProjectView isCollapsed={isCollapsed} /> : 
-            <ProjectList isCollapsed={isCollapsed} />
-          }
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+        <ChevronLeft className={`h-4 w-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+      </Button>
+      <div className="flex-1 overflow-hidden h-full">
+        {activeProject ? 
+          <ProjectView isCollapsed={isCollapsed} /> : 
+          <ProjectList isCollapsed={isCollapsed} />
+        }
+      </div>
+    </ResizablePanel>
   );
 };
 
