@@ -26,7 +26,6 @@ const TangleBlueprintApp = () => {
     blueprint.deploy();
   }`);
 
-  // Current file being edited
   const [currentFile, setCurrentFile] = useState("main.rs");
   const [currentCode, setCurrentCode] = useState(defaultCode);
   const [terminalVisible, setTerminalVisible] = useState(false);
@@ -37,20 +36,17 @@ const TangleBlueprintApp = () => {
   const setActiveProject = useActiveProject((state) => state.setActiveProject);
   const fileCache = useFileCache();
 
-  // Initialize file cache with default file
   useEffect(() => {
     if (!fileCache.hasFile("main.rs")) {
       fileCache.setFile("main.rs", defaultCode);
     }
     
-    // Load from cache if available
     const cachedFile = fileCache.getFile(currentFile);
     if (cachedFile) {
       setCurrentCode(cachedFile.content);
     }
   }, []);
 
-  // Auto-save functionality
   useEffect(() => {
     let autoSaveInterval: NodeJS.Timeout;
     
@@ -58,7 +54,7 @@ const TangleBlueprintApp = () => {
       autoSaveInterval = setInterval(() => {
         fileCache.setFile(currentFile, currentCode);
         console.log(`Auto-saving... ${currentCode.slice(0, 40)}...`);
-      }, 10000); // Auto-save every 10 seconds
+      }, 10000);
     }
     
     return () => {
@@ -68,7 +64,6 @@ const TangleBlueprintApp = () => {
     };
   }, [currentFile, currentCode, fileCache]);
   
-  // Update cache when current file or code changes immediately
   useEffect(() => {
     if (currentFile && currentCode) {
       fileCache.setFile(currentFile, currentCode);
@@ -77,7 +72,6 @@ const TangleBlueprintApp = () => {
 
   const handleSendMessage = (message: string) => {
     if (!activeProject) {
-      // Create a new project when first message is sent
       const newProject = {
         id: Date.now().toString(),
         name: message.slice(0, 30),
@@ -86,7 +80,6 @@ const TangleBlueprintApp = () => {
       setActiveProject(newProject);
     }
     
-    // Simulate AI processing with terminal output
     window.addTerminalMessage?.(`Processing: ${message}`, "info");
     setTerminalVisible(true);
     

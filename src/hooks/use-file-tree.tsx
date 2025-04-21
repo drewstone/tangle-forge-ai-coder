@@ -11,13 +11,12 @@ export const useFileTree = (initialStructure: Record<string, FileNode>) => {
 
   const toggleDirectory = (path: string) => {
     setStructure(prev => {
-      const newStructure = JSON.parse(JSON.stringify(prev)); // Deep clone to avoid mutation issues
+      // Create a deep clone to avoid mutation issues
+      const newStructure = JSON.parse(JSON.stringify(prev));
       
       // Navigate to the target directory using path segments
       const parts = path.split('/');
       let current = newStructure;
-      let parent = null;
-      let lastKey = '';
       
       // Navigate through the path segments
       for (let i = 0; i < parts.length; i++) {
@@ -29,14 +28,9 @@ export const useFileTree = (initialStructure: Record<string, FileNode>) => {
         
         if (i === parts.length - 1) {
           // Toggle only the target directory's expanded state
-          current[part] = {
-            ...current[part],
-            expanded: !current[part].expanded
-          };
+          current[part].expanded = !current[part].expanded;
         } else {
           // Keep navigating through the path
-          parent = current;
-          lastKey = part;
           current = current[part].children || {};
         }
       }
