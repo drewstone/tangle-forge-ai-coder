@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,16 @@ const AuthPage = () => {
     }
   };
 
-  // Listen for session changes to redirect after login/signup
+  const handleSocialSignIn = async (provider: "google" | "github" | "twitter") => {
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
@@ -105,17 +113,32 @@ const AuthPage = () => {
           )}
         </div>
         <div className="mb-3">
-          <Button variant="outline" className="w-full mb-2" disabled>
-            <Globe className="h-5 w-5 mr-2" /> Continue with Google (disabled)
+          <Button
+            variant="outline"
+            className="w-full mb-2"
+            onClick={() => handleSocialSignIn("google")}
+            disabled={loading}
+          >
+            <Globe className="h-5 w-5 mr-2" /> Continue with Google
           </Button>
-          <Button variant="outline" className="w-full mb-2" disabled>
-            <Github className="h-5 w-5 mr-2" /> Continue with GitHub (disabled)
+          <Button
+            variant="outline"
+            className="w-full mb-2"
+            onClick={() => handleSocialSignIn("github")}
+            disabled={loading}
+          >
+            <Github className="h-5 w-5 mr-2" /> Continue with GitHub
           </Button>
-          <Button variant="outline" className="w-full" disabled>
-            <Twitter className="h-5 w-5 mr-2" /> Continue with Twitter (disabled)
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => handleSocialSignIn("twitter")}
+            disabled={loading}
+          >
+            <Twitter className="h-5 w-5 mr-2" /> Continue with Twitter
           </Button>
           <div className="text-xs text-muted-foreground text-center mt-2">
-            Social sign-in unavailable. Contact support if you have issues.
+            Social sign-in will only work if the provider is enabled in Supabase.
           </div>
         </div>
         {error && (
