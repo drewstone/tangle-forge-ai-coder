@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import CodeEditor from "@/components/editor/CodeEditor";
@@ -10,6 +11,8 @@ import { useActiveProject } from "@/hooks/use-active-project";
 import { useFileCache } from "@/hooks/use-file-cache";
 import { useTheme } from "@/hooks/use-theme";
 import { Code, Sparkles } from "lucide-react";
+
+type ViewMode = "chat" | "split" | "editor";
 
 const TangleBlueprintApp = () => {
   const [defaultCode] = useState(`fn main() {
@@ -29,6 +32,7 @@ const TangleBlueprintApp = () => {
   const [currentFile, setCurrentFile] = useState("main.rs");
   const [currentCode, setCurrentCode] = useState(defaultCode);
   const [terminalVisible, setTerminalVisible] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
   
   const { theme } = useTheme();
   
@@ -45,6 +49,18 @@ const TangleBlueprintApp = () => {
     if (cachedFile) {
       setCurrentCode(cachedFile.content);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleViewModeChange = (event: CustomEvent<ViewMode>) => {
+      setViewMode(event.detail);
+    };
+
+    window.addEventListener("viewModeChange", handleViewModeChange as EventListener);
+
+    return () => {
+      window.removeEventListener("viewModeChange", handleViewModeChange as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -113,31 +129,9 @@ const TangleBlueprintApp = () => {
     }
   };
 
-  return (
-    <MainLayout>
-      {activeProject ? (
-        <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
-          <ResizablePanel defaultSize={35} minSize={20}>
-            <ChatInterface onSendMessage={handleSendMessage} />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={65} minSize={30}>
-            <div className="flex flex-col h-full">
-              <EditorToolbar onRun={handleRunCode} />
-              <div className="flex-1 overflow-hidden relative">
-                <CodeEditor 
-                  defaultValue={currentCode}
-                  onChange={handleEditorChange}
-                />
-                <Terminal 
-                  isOpen={terminalVisible}
-                  onToggle={() => setTerminalVisible(!terminalVisible)} 
-                />
-              </div>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
+  const renderContent = () => {
+    if (!activeProject) {
+      return (
         <div className="flex items-center justify-center h-[calc(100vh-3.5rem)] bg-background overflow-y-auto">
           <div className="max-w-4xl w-full px-6 py-12">
             <div className="mb-16 text-center space-y-6">
@@ -180,7 +174,63 @@ const TangleBlueprintApp = () => {
             </div>
           </div>
         </div>
-      )}
+      );
+    }
+
+    switch (viewMode) {
+      case "chat":
+        return (
+          <div className="h-full w-full">
+            <ChatInterface onSendMessage={handleSendMessage} />
+          </div>
+        );
+      case "editor":
+        return (
+          <div className="flex flex-col h-full w-full">
+            <EditorToolbar onRun={handleRunCode} />
+            <div className="flex-1 overflow-hidden relative">
+              <CodeEditor 
+                defaultValue={currentCode}
+                onChange={handleEditorChange}
+              />
+              <Terminal 
+                isOpen={terminalVisible}
+                onToggle={() => setTerminalVisible(!terminalVisible)} 
+              />
+            </div>
+          </div>
+        );
+      case "split":
+      default:
+        return (
+          <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
+            <ResizablePanel defaultSize={35} minSize={20}>
+              <ChatInterface onSendMessage={handleSendMessage} />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={65} minSize={30}>
+              <div className="flex flex-col h-full">
+                <EditorToolbar onRun={handleRunCode} />
+                <div className="flex-1 overflow-hidden relative">
+                  <CodeEditor 
+                    defaultValue={currentCode}
+                    onChange={handleEditorChange}
+                  />
+                  <Terminal 
+                    isOpen={terminalVisible}
+                    onToggle={() => setTerminalVisible(!terminalVisible)} 
+                  />
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        );
+    }
+  };
+
+  return (
+    <MainLayout>
+      {renderContent()}
     </MainLayout>
   );
 };

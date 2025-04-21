@@ -48,23 +48,23 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
         <Button
           key={currentPath}
           variant="ghost"
-          className={`w-full justify-start text-left text-sm h-9 px-2 ${isDir ? 'font-medium' : 'font-mono'}`}
-          style={{ paddingLeft: `${level * 12 + 8}px` }}
+          className={`w-full justify-${isCollapsed ? 'center' : 'start'} text-left text-sm h-9 px-2 ${isDir ? 'font-medium' : 'font-mono'}`}
+          style={{ paddingLeft: isCollapsed ? '8px' : `${level * 12 + 8}px` }}
           onClick={(e) => {
             e.stopPropagation();
             if (isDir) toggleDirectory(currentPath);
           }}
         >
-          <div className="flex items-center w-full overflow-hidden">
-            {isDir && (isExpanded ? 
+          <div className={`flex items-center ${isCollapsed ? '' : 'w-full'} overflow-hidden`}>
+            {!isCollapsed && isDir && (isExpanded ? 
               <ChevronDown className="mr-1 h-4 w-4 flex-shrink-0" /> : 
               <ChevronRight className="mr-1 h-4 w-4 flex-shrink-0" />
             )}
             {isDir ? 
-              <Folder className="mr-2 h-4 w-4 flex-shrink-0 text-blue-500" /> : 
-              <File className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400" />
+              <Folder className={`${isCollapsed ? '' : 'mr-2'} h-4 w-4 flex-shrink-0 text-blue-500`} /> : 
+              <File className={`${isCollapsed ? '' : 'mr-2'} h-4 w-4 flex-shrink-0 text-gray-400`} />
             }
-            <span className="truncate">{name}</span>
+            {!isCollapsed && <span className="truncate">{name}</span>}
           </div>
         </Button>
       );
@@ -86,7 +86,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
             {wrappedButton}
           </FileContextMenu>
           
-          {isDir && info.children && isExpanded && 
+          {isDir && info.children && isExpanded && !isCollapsed && 
             <div className="w-full">
               {renderFileTree(info.children, currentPath, level + 1)}
             </div>
@@ -98,7 +98,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
 
   return (
     <div className="flex flex-col h-full bg-card">
-      <div className="p-4 border-b flex items-center gap-2">
+      <div className={`p-${isCollapsed ? '2' : '4'} border-b flex items-center ${isCollapsed ? 'justify-center' : 'gap-2'}`}>
         {isCollapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -136,7 +136,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           defaultOpen={true}
           isCollapsed={isCollapsed}
         >
-          <div className="space-y-1 px-3">
+          <div className={`space-y-1 ${isCollapsed ? 'px-0' : 'px-3'}`}>
             {!isCollapsed ? (
               ['Setup Database', 'API Integration', 'Auth Config'].map((name, index) => (
                 <Button
@@ -173,7 +173,7 @@ const ProjectView = ({ isCollapsed = false }: ProjectViewProps) => {
           defaultOpen={true}
           isCollapsed={isCollapsed}
         >
-          <div className="space-y-1 px-1">
+          <div className={`space-y-1 ${isCollapsed ? 'px-0' : 'px-1'}`}>
             {renderFileTree(structure)}
           </div>
         </CollapsibleSection>

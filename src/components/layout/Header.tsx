@@ -2,22 +2,28 @@
 import { Moon, Sun, Code, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ViewModeSelector from "./ViewModeSelector";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import { useTheme } from "@/hooks/use-theme";
 
+type ViewMode = "chat" | "split" | "editor";
+
 const Header = () => {
-  const [viewMode, setViewMode] = useState<"chat" | "split" | "editor">("split");
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
   const activeProject = useActiveProject((state) => state.activeProject);
   const { theme, setTheme } = useTheme();
-
+  
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const handleViewModeChange = (mode: "chat" | "split" | "editor") => {
+  const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
-    // In a real app, we would update the layout based on the selected mode
+    
+    // We need to dispatch a custom event to notify the layout to change
+    const event = new CustomEvent("viewModeChange", { detail: mode });
+    window.dispatchEvent(event);
+    
     console.log(`View mode changed to: ${mode}`);
   };
 

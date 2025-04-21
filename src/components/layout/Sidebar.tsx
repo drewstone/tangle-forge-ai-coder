@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActiveProject } from "@/hooks/use-active-project";
 import ProjectList from "../sidebar/ProjectList";
 import ProjectView from "../sidebar/ProjectView";
@@ -15,10 +15,10 @@ const Sidebar = () => {
 
   return (
     <ResizablePanel 
-      defaultSize={20} 
-      minSize={15} 
-      maxSize={40}
-      className="border-r border-border h-[calc(100vh-3.5rem)] bg-sidebar"
+      defaultSize={isCollapsed ? 5 : 20} 
+      minSize={isCollapsed ? 5 : 15} 
+      maxSize={isCollapsed ? 5 : 40}
+      className={`border-r border-border h-[calc(100vh-3.5rem)] bg-sidebar transition-all duration-300 ${isCollapsed ? 'w-16' : ''}`}
     >
       <div className="relative h-full flex flex-col">
         <Button

@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useTheme, ThemeInitializer } from "@/hooks/use-theme";
@@ -9,13 +9,24 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
+type ViewMode = "chat" | "split" | "editor";
+
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { theme } = useTheme();
-
-  // Initialize theme from saved preferences
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
+  
+  // Listen for view mode changes
   useEffect(() => {
-    // This is just to ensure the component re-renders when theme changes
-  }, [theme]);
+    const handleViewModeChange = (event: CustomEvent<ViewMode>) => {
+      setViewMode(event.detail);
+    };
+
+    window.addEventListener("viewModeChange", handleViewModeChange as EventListener);
+
+    return () => {
+      window.removeEventListener("viewModeChange", handleViewModeChange as EventListener);
+    };
+  }, []);
 
   return (
     <>
